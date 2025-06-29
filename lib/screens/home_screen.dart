@@ -26,10 +26,6 @@ class _HomeScreenState extends State<HomeScreen> {
     'https://i.pinimg.com/736x/1c/7f/a9/1c7fa9210f96ee39917411e54e6cf0f4.jpg',
   ];
 
-  Future<List<Map<String, dynamic>>> _fetchBookings() async {
-    return await DatabaseHelper().getBookings();
-  }
-
   void _logout() {
     Navigator.pushAndRemoveUntil(
       context,
@@ -56,37 +52,51 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F9FF),
       body: SafeArea(child: _bodyContent()),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-            _pageController.jumpToPage(index);
-          });
-        },
-        selectedItemColor: const Color(0xFF2196F3),
-        unselectedItemColor: Colors.grey,
-        backgroundColor: Colors.white,
-        type: BottomNavigationBarType.fixed,
-        elevation: 8,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_rounded),
-            label: 'Home',
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: BottomNavigationBar(
+            currentIndex: _currentIndex,
+            onTap: (index) {
+              setState(() {
+                _currentIndex = index;
+                _pageController.jumpToPage(index);
+              });
+            },
+            selectedItemColor: const Color(0xFF2196F3),
+            unselectedItemColor: Colors.grey,
+            backgroundColor: Colors.white,
+            type: BottomNavigationBarType.fixed,
+            elevation: 8,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home_rounded),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.add_circle_rounded),
+                label: 'Add',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.event_note_rounded),
+                label: 'Manage',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.list_rounded),
+                label: 'List',
+              ),
+            ],
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle_rounded),
-            label: 'Add',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.event_note_rounded),
-            label: 'Manage',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list_rounded),
-            label: 'List',
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -183,18 +193,44 @@ class _HomeContent extends StatelessWidget {
               ];
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: Image.network(
-                    urls[index],
-                    fit: BoxFit.cover,
-                    loadingBuilder: (context, child, progress) {
-                      if (progress == null) return child;
-                      return const Center(child: CircularProgressIndicator());
-                    },
-                    errorBuilder: (context, error, stackTrace) =>
-                        const Center(child: Icon(Icons.broken_image, size: 48)),
-                  ),
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.network(
+                        urls[index],
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, progress) {
+                          if (progress == null) return child;
+                          return const Center(child: CircularProgressIndicator());
+                        },
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Center(child: Icon(Icons.broken_image, size: 48)),
+                      ),
+                    ),
+                    const Positioned(
+                      bottom: 10,
+                      left: 16,
+                      right: 16,
+                      child: Text(
+                        'Lapangan Terbaik Untukmu!',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          shadows: [
+                            Shadow(
+                              blurRadius: 6,
+                              color: Colors.black45,
+                              offset: Offset(0, 2),
+                            )
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    )
+                  ],
                 ),
               );
             },
