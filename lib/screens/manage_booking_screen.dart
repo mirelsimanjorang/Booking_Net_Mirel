@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../services/db_helper.dart';
-import 'home_screen.dart'; // ⬅️ Tambahkan ini
+import 'home_screen.dart';
 
 class ManageBookingScreen extends StatefulWidget {
   const ManageBookingScreen({Key? key}) : super(key: key);
 
   @override
-  _ManageBookingScreenState createState() => _ManageBookingScreenState();
+  State<ManageBookingScreen> createState() => _ManageBookingScreenState();
 }
 
 class _ManageBookingScreenState extends State<ManageBookingScreen> {
-  late Future<List<Map<String, dynamic>>> bookings;
+  List<Map<String, dynamic>> _allBookings = [];
+  List<Map<String, dynamic>> _filteredBookings = [];
+
+  String _searchQuery = '';
+  DateTime? _selectedDate;
 
   @override
   void initState() {
@@ -18,13 +23,32 @@ class _ManageBookingScreenState extends State<ManageBookingScreen> {
     _loadBookings();
   }
 
-  void _loadBookings() {
-    bookings = DatabaseHelper().getBookings();
+  void _loadBookings() async {
+    final data = await DatabaseHelper().getBookings();
+    setState(() {
+      _allBookings = data;
+      _applyFilters();
+    });
+  }
+
+  void _applyFilters() {
+    setState(() {
+      _filteredBookings = _allBookings.where((booking) {
+        final matchName = booking['gorName']
+            .toLowerCase()
+            .contains(_searchQuery.toLowerCase());
+
+        final matchDate = _selectedDate == null ||
+            booking['date'] == DateFormat('yyyy-MM-dd').format(_selectedDate!);
+
+        return matchName && matchDate;
+      }).toList();
+    });
   }
 
   void _delete(int id) async {
     await DatabaseHelper().deleteBooking(id);
-    setState(_loadBookings);
+    _loadBookings();
   }
 
   Future<void> _editBooking(Map<String, dynamic> booking) async {
@@ -44,6 +68,8 @@ class _ManageBookingScreenState extends State<ManageBookingScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          backgroundColor: Colors.white,
           scrollable: true,
           title: const Text('Edit Booking'),
           content: Column(
@@ -74,7 +100,7 @@ class _ManageBookingScreenState extends State<ManageBookingScreen> {
                 title: const Text('Tanggal'),
                 subtitle: Text(
                   selectedDate != null
-                      ? selectedDate!.toLocal().toString().split(' ')[0]
+                      ? DateFormat('yyyy-MM-dd').format(selectedDate!)
                       : 'Pilih tanggal',
                 ),
                 trailing: const Icon(Icons.calendar_today),
@@ -116,9 +142,16 @@ class _ManageBookingScreenState extends State<ManageBookingScreen> {
               child: const Text('Batal'),
             ),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.grey.shade200,
+                foregroundColor: Colors.black87,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
               onPressed: () async {
                 if (selectedDate != null && selectedTime != null) {
-                  final newDate = selectedDate!.toIso8601String().split('T')[0];
+                  final newDate = DateFormat('yyyy-MM-dd').format(selectedDate!);
                   final newTime = selectedTime!.format(context);
 
                   await DatabaseHelper().updateBookingAndLapangan(
@@ -156,6 +189,21 @@ class _ManageBookingScreenState extends State<ManageBookingScreen> {
     );
   }
 
+  Future<void> _selectDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      setState(() {
+        _selectedDate = picked;
+        _applyFilters();
+      });
+    }
+  }
+
   Future<bool> _onWillPop() async {
     Navigator.pushReplacement(
       context,
@@ -169,6 +217,7 @@ class _ManageBookingScreenState extends State<ManageBookingScreen> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
           title: const Text(
             'Kelola Booking',
@@ -177,89 +226,125 @@ class _ManageBookingScreenState extends State<ManageBookingScreen> {
           backgroundColor: const Color(0xFF003366),
           iconTheme: const IconThemeData(color: Colors.white),
         ),
-        body: FutureBuilder<List<Map<String, dynamic>>>(
-          future: bookings,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (!snapshot.hasData || (snapshot.data as List).isEmpty) {
-              return const Center(child: Text('Belum ada data booking'));
-            }
-
-            final data = snapshot.data as List<Map<String, dynamic>>;
-
-            return ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: data.length,
-              itemBuilder: (_, i) {
-                final item = data[i];
-                return Card(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  elevation: 4,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item['gorName'],
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF003366),
-                          ),
+        body: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+              color: Colors.white,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      onChanged: (val) {
+                        setState(() {
+                          _searchQuery = val;
+                          _applyFilters();
+                        });
+                      },
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.search),
+                        hintText: 'Cari berdasarkan nama lapangan...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            const Icon(Icons.place, size: 16, color: Colors.grey),
-                            const SizedBox(width: 4),
-                            Expanded(
-                              child: Text(
-                                item['location'],
-                                style: const TextStyle(fontSize: 14),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
-                            const SizedBox(width: 4),
-                            Text('Tanggal: ${item['date']}'),
-                            const SizedBox(width: 16),
-                            const Icon(Icons.access_time, size: 16, color: Colors.grey),
-                            const SizedBox(width: 4),
-                            Text('Jam: ${item['time']}'),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            TextButton.icon(
-                              onPressed: () => _editBooking(item),
-                              icon: const Icon(Icons.edit, color: Colors.blue),
-                              label: const Text('Edit', style: TextStyle(color: Colors.blue)),
-                            ),
-                            const SizedBox(width: 8),
-                            TextButton.icon(
-                              onPressed: () => _delete(item['id']),
-                              icon: const Icon(Icons.delete, color: Colors.red),
-                              label: const Text('Hapus', style: TextStyle(color: Colors.red)),
-                            ),
-                          ],
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                );
-              },
-            );
-          },
+                  IconButton(
+                    onPressed: _selectDate,
+                    icon: const Icon(Icons.filter_alt_outlined, color: Color(0xFF003366)),
+                  )
+                ],
+              ),
+            ),
+            Expanded(
+              child: _filteredBookings.isEmpty
+                  ? const Center(child: Text('Data booking tidak ditemukan.'))
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      itemCount: _filteredBookings.length,
+                      itemBuilder: (_, i) {
+                        final item = _filteredBookings[i];
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            border: Border.all(color: Colors.black, width: 1.5),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 4,
+                                offset: Offset(2, 2),
+                              )
+                            ],
+                          ),
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                item['gorName'],
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF003366),
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                children: [
+                                  const Icon(Icons.place, size: 16, color: Colors.grey),
+                                  const SizedBox(width: 4),
+                                  Expanded(child: Text(item['location'])),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  const Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+                                  const SizedBox(width: 4),
+                                  Text('Tanggal: ${item['date']}'),
+                                  const SizedBox(width: 12),
+                                  const Icon(Icons.access_time, size: 16, color: Colors.grey),
+                                  const SizedBox(width: 4),
+                                  Text('Jam: ${item['time']}'),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  TextButton(
+                                    onPressed: () => _editBooking(item),
+                                    child: const Text(
+                                      'Edit',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.blueAccent,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  TextButton(
+                                    onPressed: () => _delete(item['id']),
+                                    child: const Text(
+                                      'Hapus',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.redAccent,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
         ),
       ),
     );
