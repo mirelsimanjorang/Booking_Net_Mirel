@@ -135,9 +135,10 @@ class _ListLapanganScreenState extends State<ListLapanganScreen> {
                             const SizedBox(height: 6),
                             Row(
                               children: [
-                                const Icon(Icons.filter_list_outlined, size: 16, color: Colors.teal),
-                                const SizedBox(width: 4),
-                                Text(item['facility'] ?? 'Wifi'),
+                                getFacilityIcon(item['facility']),
+                                const SizedBox(width: 6),
+                                Text(item['facility'] ?? 'Tidak tersedia',
+                                    style: const TextStyle(fontSize: 13)),
                                 const Spacer(),
                                 Text(
                                   'Rp ${item['price']} /Jam',
@@ -197,5 +198,22 @@ class _ListLapanganScreenState extends State<ListLapanganScreen> {
         ),
       ),
     );
+  }
+
+  Widget getFacilityIcon(String? facility) {
+    switch (facility?.toLowerCase()) {
+      case 'wifi':
+        return const Icon(Icons.wifi, size: 18, color: Colors.blueAccent);
+      case 'kantin':
+        return const Icon(Icons.restaurant, size: 18, color: Colors.orange);
+      case 'parkir':
+        return const Icon(Icons.local_parking, size: 18, color: Colors.green);
+      case 'toilet':
+        return const Icon(Icons.wc, size: 18, color: Colors.purple);
+      case 'ac':
+        return const Icon(Icons.ac_unit, size: 18, color: Colors.cyan);
+      default:
+        return const Icon(Icons.category, size: 18, color: Colors.grey);
+    }
   }
 }
