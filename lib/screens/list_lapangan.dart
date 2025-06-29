@@ -71,6 +71,7 @@ class _ListLapanganScreenState extends State<ListLapanganScreen> {
                     item['image'] != null && item['image'].toString().startsWith('/');
 
                 return Card(
+                  color: Colors.white,
                   elevation: 6,
                   margin: const EdgeInsets.symmetric(vertical: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
