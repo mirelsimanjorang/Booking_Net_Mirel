@@ -43,8 +43,9 @@ class _ListLapanganScreenState extends State<ListLapanganScreen> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: _onWillPop, // ← menangani tombol back
+      onWillPop: _onWillPop,
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
           title: const Text('Daftar Lapangan', style: TextStyle(color: Colors.white)),
           backgroundColor: const Color(0xFF003366),
