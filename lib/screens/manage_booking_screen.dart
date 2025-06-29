@@ -51,6 +51,14 @@ class _ManageBookingScreenState extends State<ManageBookingScreen> {
     _loadBookings();
   }
 
+  void _resetFilters() {
+    setState(() {
+      _searchQuery = '';
+      _selectedDate = null;
+      _applyFilters();
+    });
+  }
+
   Future<void> _editBooking(Map<String, dynamic> booking) async {
     final nameController = TextEditingController(text: booking['gorName']);
     final locationController = TextEditingController(text: booking['location']);
@@ -252,7 +260,12 @@ class _ManageBookingScreenState extends State<ManageBookingScreen> {
                   IconButton(
                     onPressed: _selectDate,
                     icon: const Icon(Icons.filter_alt_outlined, color: Color(0xFF003366)),
-                  )
+                  ),
+                  IconButton(
+                    onPressed: _resetFilters,
+                    tooltip: 'Reset Filter',
+                    icon: const Icon(Icons.clear, color: Colors.black54),
+                  ),
                 ],
               ),
             ),
