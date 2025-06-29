@@ -217,7 +217,7 @@ class _ManageBookingScreenState extends State<ManageBookingScreen> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFF9FAFB),
         appBar: AppBar(
           title: const Text(
             'Kelola Booking',
@@ -230,7 +230,6 @@ class _ManageBookingScreenState extends State<ManageBookingScreen> {
           children: [
             Container(
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-              color: Colors.white,
               child: Row(
                 children: [
                   Expanded(
@@ -268,12 +267,18 @@ class _ManageBookingScreenState extends State<ManageBookingScreen> {
                         final item = _filteredBookings[i];
                         return Container(
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            border: Border.all(color: Colors.black38, width: 1),
-                            borderRadius: BorderRadius.circular(6),
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 8,
+                                offset: Offset(0, 4),
+                              ),
+                            ],
                           ),
-                          margin: const EdgeInsets.only(bottom: 6),
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -305,7 +310,7 @@ class _ManageBookingScreenState extends State<ManageBookingScreen> {
                                   Text('Jam: ${item['time']}'),
                                 ],
                               ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 12),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
@@ -314,7 +319,7 @@ class _ManageBookingScreenState extends State<ManageBookingScreen> {
                                     style: TextButton.styleFrom(
                                       backgroundColor: Colors.blue.shade50,
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(6),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
                                     ),
                                     child: const Padding(
@@ -334,7 +339,7 @@ class _ManageBookingScreenState extends State<ManageBookingScreen> {
                                     style: TextButton.styleFrom(
                                       backgroundColor: Colors.red.shade50,
                                       shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(6),
+                                        borderRadius: BorderRadius.circular(8),
                                       ),
                                     ),
                                     child: const Padding(
