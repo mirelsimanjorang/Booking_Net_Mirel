@@ -18,6 +18,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
+  final PageController _pageController = PageController();
+
   final List<String> _carouselUrls = [
     'https://i.pinimg.com/736x/f4/b2/01/f4b2012461ca766c562377149f6ba393.jpg',
     'https://i.pinimg.com/736x/5b/b2/d3/5bb2d33078b49b0a1212633103ceb6e0.jpg',
@@ -37,24 +39,70 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _bodyContent() {
-    switch (_currentIndex) {
-      case 0:
-        return _buildHomeContent();
-      case 1:
-        return const AddLapanganScreen();
-      case 2:
-        return const ManageBookingScreen();
-      case 3:
-        return const ListLapanganScreen();
-      default:
-        return _buildHomeContent();
-    }
+    return PageView(
+      controller: _pageController,
+      onPageChanged: (index) => setState(() => _currentIndex = index),
+      children: const [
+        _HomeContent(),
+        AddLapanganScreen(),
+        ManageBookingScreen(),
+        ListLapanganScreen(),
+      ],
+    );
   }
 
-  Widget _buildHomeContent() {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F9FF),
+      body: SafeArea(child: _bodyContent()),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+            _pageController.jumpToPage(index);
+          });
+        },
+        selectedItemColor: const Color(0xFF2196F3),
+        unselectedItemColor: Colors.grey,
+        backgroundColor: Colors.white,
+        type: BottomNavigationBarType.fixed,
+        elevation: 8,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_rounded),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add_circle_rounded),
+            label: 'Add',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.event_note_rounded),
+            label: 'Manage',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list_rounded),
+            label: 'List',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HomeContent extends StatelessWidget {
+  const _HomeContent();
+
+  Future<List<Map<String, dynamic>>> _fetchBookings() async {
+    return await DatabaseHelper().getBookings();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       children: [
-        // 🔷 HEADER
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
@@ -109,28 +157,36 @@ class _HomeScreenState extends State<HomeScreen> {
                 alignment: Alignment.topRight,
                 child: IconButton(
                   icon: const Icon(Icons.logout, color: Colors.white),
-                  onPressed: _logout,
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginScreen()),
+                      (route) => false,
+                    );
+                  },
                 ),
               )
             ],
           ),
         ),
-
         const SizedBox(height: 20),
-
-        // 🖼️ SLIDER
         SizedBox(
           height: 200,
           child: PageView.builder(
-            itemCount: _carouselUrls.length,
+            itemCount: 3,
             controller: PageController(viewportFraction: 0.9),
             itemBuilder: (context, index) {
+              final urls = [
+                'https://i.pinimg.com/736x/f4/b2/01/f4b2012461ca766c562377149f6ba393.jpg',
+                'https://i.pinimg.com/736x/5b/b2/d3/5bb2d33078b49b0a1212633103ceb6e0.jpg',
+                'https://i.pinimg.com/736x/1c/7f/a9/1c7fa9210f96ee39917411e54e6cf0f4.jpg'
+              ];
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
                   child: Image.network(
-                    _carouselUrls[index],
+                    urls[index],
                     fit: BoxFit.cover,
                     loadingBuilder: (context, child, progress) {
                       if (progress == null) return child;
@@ -144,9 +200,7 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
         ),
-
         const SizedBox(height: 20),
-
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Align(
@@ -160,13 +214,10 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
-
         const SizedBox(height: 6),
-
-        // 📋 BOOKING LIST
         Expanded(
           child: FutureBuilder(
-            future: _fetchBookings(),
+            future: DatabaseHelper().getBookings(),
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
                 return const Center(child: CircularProgressIndicator());
@@ -175,7 +226,6 @@ class _HomeScreenState extends State<HomeScreen> {
               if (data.isEmpty) {
                 return const Center(child: Text('Belum ada data booking.'));
               }
-
               return ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 itemCount: data.length,
@@ -193,14 +243,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                   child: ListTile(
-                    contentPadding:
-                        const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 14),
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) =>
-                              BookingDetailScreen(booking: data[i]),
+                          builder: (_) => BookingDetailScreen(booking: data[i]),
                         ),
                       );
                     },
@@ -282,43 +331,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF5F9FF),
-      body: SafeArea(child: _bodyContent()),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        selectedItemColor: const Color(0xFF2196F3),
-        unselectedItemColor: Colors.grey,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle_outline),
-            label: 'Add',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.edit_calendar_outlined),
-            label: 'Manage',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list_alt_outlined),
-            label: 'List',
-          ),
-        ],
-      ),
     );
   }
 }
