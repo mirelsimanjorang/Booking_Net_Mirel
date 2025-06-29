@@ -68,7 +68,7 @@ class _ManageBookingScreenState extends State<ManageBookingScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           backgroundColor: Colors.white,
           scrollable: true,
           title: const Text('Edit Booking'),
@@ -143,10 +143,10 @@ class _ManageBookingScreenState extends State<ManageBookingScreen> {
             ),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.grey.shade200,
+                backgroundColor: Colors.grey.shade300,
                 foregroundColor: Colors.black87,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(6),
                 ),
               ),
               onPressed: () async {
@@ -229,7 +229,7 @@ class _ManageBookingScreenState extends State<ManageBookingScreen> {
         body: Column(
           children: [
             Container(
-              padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
               color: Colors.white,
               child: Row(
                 children: [
@@ -257,36 +257,30 @@ class _ManageBookingScreenState extends State<ManageBookingScreen> {
                 ],
               ),
             ),
+            const SizedBox(height: 4),
             Expanded(
               child: _filteredBookings.isEmpty
                   ? const Center(child: Text('Data booking tidak ditemukan.'))
                   : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
                       itemCount: _filteredBookings.length,
                       itemBuilder: (_, i) {
                         final item = _filteredBookings[i];
                         return Container(
                           decoration: BoxDecoration(
                             color: Colors.grey.shade100,
-                            border: Border.all(color: Colors.black, width: 1.5),
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 4,
-                                offset: Offset(2, 2),
-                              )
-                            ],
+                            border: Border.all(color: Colors.black38, width: 1),
+                            borderRadius: BorderRadius.circular(6),
                           ),
-                          margin: const EdgeInsets.only(bottom: 10),
-                          padding: const EdgeInsets.all(16),
+                          margin: const EdgeInsets.only(bottom: 6),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 item['gorName'],
                                 style: const TextStyle(
-                                  fontSize: 18,
+                                  fontSize: 17,
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF003366),
                                 ),
@@ -317,22 +311,40 @@ class _ManageBookingScreenState extends State<ManageBookingScreen> {
                                 children: [
                                   TextButton(
                                     onPressed: () => _editBooking(item),
-                                    child: const Text(
-                                      'Edit',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.blueAccent,
+                                    style: TextButton.styleFrom(
+                                      backgroundColor: Colors.blue.shade50,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                    ),
+                                    child: const Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 12),
+                                      child: Text(
+                                        'Edit',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.blueAccent,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 4),
+                                  const SizedBox(width: 8),
                                   TextButton(
                                     onPressed: () => _delete(item['id']),
-                                    child: const Text(
-                                      'Hapus',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.redAccent,
+                                    style: TextButton.styleFrom(
+                                      backgroundColor: Colors.red.shade50,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                    ),
+                                    child: const Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 12),
+                                      child: Text(
+                                        'Hapus',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.redAccent,
+                                        ),
                                       ),
                                     ),
                                   ),
