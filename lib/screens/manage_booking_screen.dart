@@ -226,28 +226,13 @@ class _ManageBookingScreenState extends State<ManageBookingScreen> {
       onWillPop: _onWillPop,
       child: Scaffold(
         backgroundColor: const Color(0xFFF9FAFB),
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(kToolbarHeight),
-          child: AppBar(
-            automaticallyImplyLeading: true,
-            flexibleSpace: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF2E82F8), Color(0xFF0663C7)],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
-              ),
-            ),
-            iconTheme: const IconThemeData(color: Colors.white),
-            title: const Text(
-              'Kelola Booking',
-              style: TextStyle(color: Colors.white),
-            ),
-            centerTitle: false,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
+        appBar: AppBar(
+          title: const Text(
+            'Kelola Booking',
+            style: TextStyle(color: Colors.white),
           ),
+          backgroundColor: const Color(0xFF003366),
+          iconTheme: const IconThemeData(color: Colors.white),
         ),
         body: Column(
           children: [

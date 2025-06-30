@@ -156,40 +156,26 @@ class _AddLapanganScreenState extends State<AddLapanganScreen> {
       },
       child: Scaffold(
         backgroundColor: const Color(0xFFF7F7F7),
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(60.0),
-          child: AppBar(
-            automaticallyImplyLeading: false,
-            flexibleSpace: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Color(0xFF2E82F8), Color(0xFF0663C7)],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
-              ),
-            ),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: Colors.white),
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const HomeScreen()),
-                );
-              },
-            ),
-            title: const Text(
-              'Tambah Lapangan',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            centerTitle: false,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF003366),
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const HomeScreen()),
+              );
+            },
           ),
+          title: const Text(
+            'Tambah Lapangan',
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+          ),
+          centerTitle: false,
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -319,3 +305,4 @@ class _AddLapanganScreenState extends State<AddLapanganScreen> {
     );
   }
 }
+
